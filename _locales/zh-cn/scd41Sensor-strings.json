@@ -1,0 +1,17 @@
+{
+    "scd41Sensor.BeginPara.Elevation|block": "海拔(m)",
+    "scd41Sensor.BeginPara.Pressure|block": "气压(Pa)",
+    "scd41Sensor.MeasureStatus.Start|block": "开始",
+    "scd41Sensor.MeasureStatus.Stop|block": "停止",
+    "scd41Sensor.MeasureData.Temperature|block": "温度",
+    "scd41Sensor.MeasureData.Humidity|block": "湿度",
+    "scd41Sensor.MeasureData.CO2|block": "CO2",
+
+    "scd41Sensor.begin|block": "SCD41初始化 %value %para",
+    "scd41Sensor.measure|block": "SCD41 %status 测量",
+    "scd41Sensor.getStatus|block": "传感器数据是否更新？",
+    "scd41Sensor.getdata|block": "获取 %data",
+    
+    "scd41Sensor|block": "SCD41 二氧化碳传感器 （SEN0536）"
+
+}

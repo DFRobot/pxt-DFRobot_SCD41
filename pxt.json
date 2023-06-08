@@ -1,0 +1,27 @@
+{
+    "name": "scd41Sensor",
+    "description": "A small volume CO2, temperature, humidity three-in-one sensor.",
+    "license": "MIT",
+    "dependencies": {
+        "core": "*"
+    },
+    "files": [
+        "main.blocks",
+        "main.ts",
+        "README.md",
+        "_locales/zh-cn/scd41Sensor-strings.json",
+        "_locales/zh-cn/scd41Sensor-jsdoc-strings.json",
+        "scd41Sensor.ts"
+    ],
+    "testFiles": [
+        "test.ts"
+    ],
+    "targetVersions": {
+        "target": "5.0.12",
+        "targetId": "microbit"
+    },
+    "supportedTargets": [
+        "microbit"
+    ],
+    "preferredEditor": "tsprj"
+}
