@@ -69,7 +69,9 @@ namespace scd41Sensor {
     const SCD4X_POWER_DOWN                     = 0x36e0   ///< Put the sensor from idle to sleep to reduce current consumption.
     const SCD4X_WAKE_UP                        = 0x36f6   ///< Wake up the sensor from sleep mode into idle mode.
 
-    
+    let temp = 0;
+    let humi = 0;
+    let co2ppm = 0;
     
     /**
      * @param value , eg: "540"
@@ -80,10 +82,10 @@ namespace scd41Sensor {
     export function begin(value: number, para: BeginPara): void {
         enablePeriodMeasure(SCD4X_STOP_PERIODIC_MEASURE);
         getSerialNumber();
-        serial.writeLine("begin ok!");
-        if (para == BeginPara.Elevation)
+        // serial.writeLine("begin ok!");
+        if (para == BeginPara.Elevation) {
             writeData(SCD4X_SET_SENSOR_ALTITUDE, pack(value), true);
-        else if (para == BeginPara.Pressure) {
+        } else if (para == BeginPara.Pressure) {
             writeData(SCD4X_SET_AMBIENT_PRESSURE, pack(Math.ceil(value / 100)), true);
         }
     }
@@ -95,9 +97,9 @@ namespace scd41Sensor {
     //% blockId=scd41Sensor_measure block="SCD41 %status measure"
     //% weight=80
     export function measure(status: MeasureStatus): void {
-        if (status == MeasureStatus.Start)
+        if (status == MeasureStatus.Start) {
             enablePeriodMeasure(SCD4X_START_PERIODIC_MEASURE);
-        else if (status == MeasureStatus.Stop) {
+        } else if (status == MeasureStatus.Stop) {
             enablePeriodMeasure(SCD4X_STOP_PERIODIC_MEASURE);
         }
     }
@@ -109,11 +111,18 @@ namespace scd41Sensor {
     //% blockId=scd41Sensor_getStatus block="Is the sensor data updated?"
     //% weight=60
     export function getStatus(): boolean {
-
+        
         let buf = readData(SCD4X_GET_DATA_READY_STATUS, 3);
         if (0x0000 == (byteToWord(buf[0], buf[1]) & 0x7FF)) {
             return false;
         }
+        buf = readData(SCD4X_READ_MEASUREMENT, 9);
+        // serial.writeLine("len:"+buf.length);
+        // for(let i=0; i<buf.length; i++)
+        //     serial.writeLine("buf["+i+"]:" + buf[i]);
+        co2ppm = byteToWord(buf[0], buf[1]);
+        temp = -45 + Math.round(100 * 175 * ((byteToWord(buf[3], buf[4])) / (1 << 16))) / 100;
+        humi = Math.round(100 * 100 * ((byteToWord(buf[6], buf[7])) / (1 << 16))) /100;
         return true;
     }
 
@@ -124,22 +133,20 @@ namespace scd41Sensor {
     //% blockId=scd41Sensor_getdata block="get %data"
     //% weight=40
     export function getdata(data: MeasureData): number {
-        let value = 0;
-        let buf = readData(SCD4X_READ_MEASUREMENT, 9);
         if (data == MeasureData.Temperature) {
-            value = -45 + 175 * Math.round((byteToWord(buf[3], buf[4])) / (1 << 16));
+            return temp;
         } else if (data == MeasureData.Humidity) {
-            value = 100 * Math.round((byteToWord(buf[6], buf[7])) / (1 << 16));
+            return humi;
         } else {
-            value = byteToWord(buf[0], buf[1])
+            return co2ppm;
         }
-        return value;
     }
 
     function enablePeriodMeasure(mode: number) {
         writeData(mode, null, true);
-        if (SCD4X_STOP_PERIODIC_MEASURE == mode)
+        if (SCD4X_STOP_PERIODIC_MEASURE == mode) {
             basic.pause(500);                   // Give it some time to switch mode
+        }  
     }
 
     function getSerialNumber(): number[] {
@@ -156,6 +163,7 @@ namespace scd41Sensor {
         sendPack.push((data >> 8) & 0xFF);
         sendPack.push(data & 0xFF);
         sendPack.push(calcCRC(data));
+        // serial.writeLine("-->" + calcCRC(data));
         return sendPack;
     }
 
@@ -168,9 +176,9 @@ namespace scd41Sensor {
             crc = crc ^ buf[currentByte];
             for (crcbit = 8; crcbit > 0; crcbit--) {
                 if (crc & 0x80)
-                    crc = (crc << 1) ^ SCD4X_CRC8_POLYNOMIAL;
+                    crc = ((crc << 1) & 0xFF) ^ SCD4X_CRC8_POLYNOMIAL;
                 else
-                    crc = (crc << 1);
+                    crc = ((crc << 1) & 0xFF);
             }
         }
         return crc;
@@ -200,9 +208,7 @@ namespace scd41Sensor {
         if (buf == null || buf.length == 0) {
             pins.i2cWriteBuffer(SCD4X_I2C_ADDR, pins.createBufferFromArray(cmdArray));
         } else {
-            pins.i2cWriteBuffer(SCD4X_I2C_ADDR, pins.createBufferFromArray(cmdArray), true);
-            pins.i2cWriteBuffer(SCD4X_I2C_ADDR, pins.createBufferFromArray(buf));
+            pins.i2cWriteBuffer(SCD4X_I2C_ADDR, pins.createBufferFromArray(cmdArray.concat(buf)));
         }  
     }
-
 }
