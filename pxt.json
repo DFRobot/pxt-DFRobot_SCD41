@@ -12,6 +12,8 @@
         "README.md",
         "_locales/zh-cn/scd41Sensor-strings.json",
         "_locales/zh-cn/scd41Sensor-jsdoc-strings.json",
+        "_locales/zh-tw/scd41Sensor-strings.json",
+        "_locales/zh-tw/scd41Sensor-jsdoc-strings.json",
         "scd41Sensor.ts"
     ],
     "testFiles": [
