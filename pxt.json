@@ -1,6 +1,6 @@
 {
     "name": "scd41Sensor",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A small volume CO2, temperature, humidity three-in-one sensor.",
     "license": "MIT",
     "dependencies": {
